@@ -1,13 +1,17 @@
 {
   "expo": {
-    "name": "BillingApp",
-    "slug": "BillingApp",
+    "name": "App",
+    "slug": "smart-billing-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "backgroundColor": "#2563EB"
+    },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.smartbilling.app"
     },
     "android": {
       "adaptiveIcon": {
@@ -16,10 +20,33 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
+      "package": "com.smartbilling.app",
       "predictiveBackGestureEnabled": false
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "useFrameworks": "static"
+          }
+        }
+      ],
+      [
+  "react-native-google-mobile-ads",
+  {
+    "androidAppId": "ca-app-pub-7848427116394025~8342572171"
+  }
+],
+      [
+        "expo-notifications",
+        {
+          "color": "#0D9488"
+        }
+      ]
+    ]
   }
 }

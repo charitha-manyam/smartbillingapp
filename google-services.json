@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "788769136251",
+    "project_id": "softwarebillingapp",
+    "storage_bucket": "softwarebillingapp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:788769136251:android:c1f99de0c83777a9300cde",
+        "android_client_info": {
+          "package_name": "com.smartbillingapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDWSTWSqwSR_mGJW85DV0M8f4oklY5Vi5w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
