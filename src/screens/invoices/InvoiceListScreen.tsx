@@ -7,7 +7,7 @@ import { useApp } from '../../context/AppContext';
 import { DocumentCard } from '../../components/DocumentCard';
 import { EmptyState } from '../../components/EmptyState';
 
-const BANNER_ID = 'ca-app-pub-3940256099942544/6300978111';
+const BANNER_ID = 'ca-app-pub-7848427116394025/5144392331';
 
 export default function InvoiceListScreen({ navigation }: any) {
   const theme = useTheme();

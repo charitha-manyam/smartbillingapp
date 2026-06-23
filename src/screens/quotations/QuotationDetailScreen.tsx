@@ -10,7 +10,7 @@ import { DocumentActions } from '../../components/DocumentActions';
 import { formatDate, formatCurrency } from '../../utils';
 import { printQuotation, generateQuotationPdf, sharePdf } from '../../services/pdf';
 
-const interstitial = InterstitialAd.createForAdRequest('ca-app-pub-3940256099942544/1033173712');
+const interstitial = InterstitialAd.createForAdRequest('ca-app-pub-7848427116394025/1715449067');
 
 export default function QuotationDetailScreen({ navigation, route }: any) {
   const theme = useTheme();

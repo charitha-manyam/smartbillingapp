@@ -1,15 +1,19 @@
-import React, { createContext, useContext, useReducer, useCallback, useMemo, useEffect, useRef } from 'react';
+import React, { createContext, useContext, useReducer, useCallback, useMemo, useEffect } from 'react';
 import { Company, Customer, Vendor, Product, StockTransaction, Quotation, Invoice, Purchase, CreditNote, DebitNote, AppNotification } from '../types';
 import * as firestoreService from '../services/firestore';
 import { saveData, loadData, KEYS } from '../services/storage';
 import { sendLocalNotification, setupNotifications, setBadgeCount, scheduleEveningMotivation, DaySummary } from '../services/pushNotifications';
 import {
   getAuth,
-  signInWithPhoneNumber,
+  GoogleAuthProvider,
   onAuthStateChanged,
   signOut,
   FirebaseAuthTypes,
 } from '@react-native-firebase/auth';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
+
+// Get this from Firebase Console → Authentication → Sign-in method → Google → Web SDK configuration
+const WEB_CLIENT_ID = '788769136251-nt6jtm7d64j6d12oqem5a2b0n4simth8.apps.googleusercontent.com';
 
 interface AppState {
   isAuthenticated: boolean;
@@ -233,8 +237,7 @@ function appReducer(state: AppState, action: Action): AppState {
 interface AppContextType {
   state: AppState;
   dispatch: React.Dispatch<Action>;
-  login: (phone: string) => Promise<void>;
-  verifyOtp: (otp: string) => Promise<void>;
+  googleLogin: () => Promise<void>;
   logout: () => void;
   toggleDarkMode: () => void;
   syncToFirestore: () => Promise<void>;
@@ -246,7 +249,6 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [state, rawDispatch] = useReducer(appReducer, initialState);
-  const confirmationRef = useRef<FirebaseAuthTypes.ConfirmationResult | null>(null);
 
   // Smart dispatch: intercepts document-creation actions to auto-generate notifications
   const dispatch = useCallback((action: Action) => {
@@ -471,29 +473,23 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
 
-  const login = useCallback(async (phone: string) => {
-    const phoneWithCode = phone.startsWith('+') ? phone : `+91${phone}`;
-    confirmationRef.current = await signInWithPhoneNumber(getAuth(), phoneWithCode);
+  useEffect(() => {
+    GoogleSignin.configure({ webClientId: WEB_CLIENT_ID });
   }, []);
 
-  const verifyOtp = useCallback(async (otp: string) => {
-    if (!confirmationRef.current) throw new Error('Please request OTP first');
-    const credential = await confirmationRef.current.confirm(otp);
-    const firebaseUser = credential?.user;
-    const userPayload = {
-      name: firebaseUser?.displayName || 'User',
-      email: firebaseUser?.email || '',
-      phone: firebaseUser?.phoneNumber || '',
-      uid: firebaseUser?.uid || '',
-    };
-    dispatch({ type: 'SET_USER', payload: userPayload });
-    saveData(KEYS.USER, userPayload);
-    dispatch({ type: 'SET_AUTH', payload: true });
-    dispatch({ type: 'SET_ONLINE', payload: true });
+  const googleLogin = useCallback(async () => {
+    await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+    const response = await GoogleSignin.signIn();
+    const idToken = (response as any)?.data?.idToken ?? (response as any)?.idToken;
+    if (!idToken) throw new Error('Google Sign-In cancelled or failed');
+    const credential = GoogleAuthProvider.credential(idToken);
+    await getAuth().signInWithCredential(credential);
+    // onAuthStateChanged handles SET_USER and SET_AUTH automatically
   }, []);
 
   const logout = useCallback(() => {
     signOut(getAuth()).catch(() => {});
+    GoogleSignin.signOut().catch(() => {});
     dispatch({ type: 'LOGOUT' });
   }, []);
 
@@ -565,15 +561,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     () => ({
       state,
       dispatch,
-      login,
-      verifyOtp,
+      googleLogin,
       logout,
       toggleDarkMode,
       syncToFirestore,
       loadFromFirestore,
       uploadImage,
     }),
-    [state, dispatch, login, verifyOtp, logout, toggleDarkMode, syncToFirestore, loadFromFirestore, uploadImage]
+    [state, dispatch, googleLogin, logout, toggleDarkMode, syncToFirestore, loadFromFirestore, uploadImage]
   );
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

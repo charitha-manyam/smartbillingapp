@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, Modal, TouchableOpacity, FlatList } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { View, StyleSheet, Modal, TouchableOpacity, FlatList, ScrollView } from 'react-native';
 import { KeyboardAwareScrollView } from '../../components/KeyboardAwareScrollView';
 import { Text, TextInput, Button, useTheme, Menu, Searchbar } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
@@ -81,6 +81,7 @@ export default function CreateQuotationScreen({ navigation }: any) {
   const { state, dispatch } = useApp();
   const { customers, quotations, products } = state;
   const upcomingNumber = nextQuotationNumber(quotations);
+  const scrollRef = useRef<ScrollView>(null);
 
   const [customerId, setCustomerId] = useState('');
   const [customerMenu, setCustomerMenu] = useState(false);
@@ -146,7 +147,7 @@ export default function CreateQuotationScreen({ navigation }: any) {
   };
 
   return (
-    <KeyboardAwareScrollView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+    <KeyboardAwareScrollView ref={scrollRef} style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <View style={styles.content}>
         <View style={styles.idBadge}>
           <View>

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { View, ActivityIndicator } from 'react-native';
 import { NavigationContainer, Theme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -6,6 +6,7 @@ import { useApp } from '../context/AppContext';
 import { AuthNavigator } from './AppNavigator';
 import { TabNavigator } from './TabNavigator';
 import CompanySetupScreen from '../screens/company/CompanySetupScreen';
+import SplashScreen from '../screens/splash/SplashScreen';
 
 const SetupStack = createNativeStackNavigator();
 
@@ -27,12 +28,17 @@ function LoadingScreen() {
 
 export function AppNavigator({ theme }: { theme?: Theme }) {
   const { state, loadFromFirestore } = useApp();
+  const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
     if (state.isAuthenticated) {
       loadFromFirestore();
     }
   }, [state.isAuthenticated]);
+
+  if (showSplash) {
+    return <SplashScreen onFinish={() => setShowSplash(false)} />;
+  }
 
   if (state.isLoading) {
     return <LoadingScreen />;

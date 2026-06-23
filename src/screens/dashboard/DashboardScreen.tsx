@@ -7,7 +7,7 @@ import { useApp } from '../../context/AppContext';
 import { Ionicons } from '@expo/vector-icons';
 import { getInitials } from '../../utils';
 
-const BANNER_ID = 'ca-app-pub-3940256099942544/6300978111';
+const BANNER_ID = 'ca-app-pub-7848427116394025/5144392331';
 
 const SCREEN_W = Dimensions.get('window').width;
 const CARD_W = (SCREEN_W - Spacing.lg * 2 - Spacing.sm * 2) / 3;

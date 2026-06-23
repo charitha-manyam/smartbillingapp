@@ -12,7 +12,7 @@ import { CalculationSummary } from '../../components/CalculationSummary';
 import { generateDocumentNumber } from '../../utils';
 import { DatePickerModal, formatDisplayDate } from '../../components/DatePickerModal';
 
-const interstitial = InterstitialAd.createForAdRequest('ca-app-pub-3940256099942544/1033173712');
+const interstitial = InterstitialAd.createForAdRequest('ca-app-pub-7848427116394025/1715449067');
 
 function ProductPickerModal({
   visible,

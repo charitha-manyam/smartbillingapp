@@ -1,74 +1,36 @@
-import { useState, useRef } from 'react';
-import {
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  TextInput as RNTextInput,
-} from 'react-native';
-import { KeyboardAwareScrollView } from '../../components/KeyboardAwareScrollView';
-import { Text, TextInput, useTheme } from 'react-native-paper';
+import { useState } from 'react';
+import { View, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { Text, useTheme } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { Spacing, FontSize, BorderRadius, Shadow } from '../../constants';
 import { useApp } from '../../context/AppContext';
 
 export default function LoginScreen() {
   const theme = useTheme();
-  const { login, verifyOtp } = useApp();
-  const [phone, setPhone] = useState('');
-  const [showOtp, setShowOtp] = useState(false);
-  const [otp, setOtp] = useState(['', '', '', '', '', '']);
+  const { googleLogin } = useApp();
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [isSending, setIsSending] = useState(false);
-  const [isVerifying, setIsVerifying] = useState(false);
-  const otpRefs = useRef<(RNTextInput | null)[]>([]);
 
-  const otpValue = otp.join('');
-
-  const handleSendOtp = async () => {
-    if (phone.length === 10) {
-      setError('');
-      setIsSending(true);
-      try {
-        await login(phone);
-        setShowOtp(true);
-      } catch (e: any) {
-        setError(e?.message || 'Failed to send OTP. Check your number and try again.');
-      } finally {
-        setIsSending(false);
+  const handleGoogleSignIn = async () => {
+    setError('');
+    setIsLoading(true);
+    try {
+      await googleLogin();
+    } catch (e: any) {
+      const msg = e?.message || e?.code || String(e) || 'Unknown error';
+      if (msg.includes('cancelled') || msg.includes('SIGN_IN_CANCELLED')) {
+        // user cancelled — no error shown
+      } else {
+        setError(msg);
       }
+    } finally {
+      setIsLoading(false);
     }
   };
-
-  const handleVerifyOtp = async () => {
-    if (otpValue.length === 6) {
-      setError('');
-      setIsVerifying(true);
-      try {
-        await verifyOtp(otpValue);
-      } catch (e: any) {
-        setError(e?.message || 'Invalid OTP. Please try again.');
-        setOtp(['', '', '', '', '', '']);
-        otpRefs.current[0]?.focus();
-      } finally {
-        setIsVerifying(false);
-      }
-    }
-  };
-
-  const handleOtpChange = (val: string, idx: number) => {
-    const digit = val.replace(/[^0-9]/g, '').slice(-1);
-    const newOtp = [...otp];
-    newOtp[idx] = digit;
-    setOtp(newOtp);
-    if (digit && idx < 5) otpRefs.current[idx + 1]?.focus();
-    if (!digit && idx > 0) otpRefs.current[idx - 1]?.focus();
-  };
-
-  const inputTheme = { colors: { primary: '#0D9488' } };
 
   return (
     <View style={styles.container}>
-      {/* Top wave background */}
+      {/* Top hero section */}
       <View style={styles.topBg}>
         <View style={styles.circle1} />
         <View style={styles.circle2} />
@@ -81,122 +43,42 @@ export default function LoginScreen() {
         </View>
       </View>
 
-      <KeyboardAwareScrollView
-        contentContainerStyle={styles.scrollContent}
-      >
+      {/* Card */}
+      <View style={styles.cardWrap}>
         <View style={[styles.card, { backgroundColor: theme.colors.surface }]}>
-          {/* Card header strip */}
           <View style={styles.cardStrip}>
-            <Ionicons
-              name={showOtp ? 'keypad' : 'phone-portrait'}
-              size={20}
-              color="#fff"
-            />
-            <Text style={styles.cardStripText}>
-              {showOtp ? 'Verify OTP' : 'Sign In'}
-            </Text>
+            <Ionicons name="log-in-outline" size={20} color="#fff" />
+            <Text style={styles.cardStripText}>Sign In</Text>
           </View>
 
           <View style={styles.cardBody}>
-            {!showOtp ? (
-              <>
-                <Text style={[styles.cardTitle, { color: theme.colors.onSurface }]}>
-                  Welcome Back!
-                </Text>
-                <Text style={[styles.cardSub, { color: theme.colors.onSurfaceVariant }]}>
-                  Enter your mobile number to continue
-                </Text>
+            <Text style={[styles.cardTitle, { color: theme.colors.onSurface }]}>
+              Welcome Back!
+            </Text>
+            <Text style={[styles.cardSub, { color: theme.colors.onSurfaceVariant }]}>
+              Sign in with your Google account to continue
+            </Text>
 
-                <TextInput
-                  label="Mobile Number"
-                  value={phone}
-                  onChangeText={setPhone}
-                  mode="outlined"
-                  keyboardType="phone-pad"
-                  maxLength={10}
-                  theme={inputTheme}
-                  left={<TextInput.Icon icon="phone" color="#0D9488" />}
-                  style={styles.input}
-                />
-
-                <TouchableOpacity
-                  style={[
-                    styles.primaryBtn,
-                    phone.length !== 10 && styles.btnDisabled,
-                  ]}
-                  onPress={handleSendOtp}
-                  disabled={phone.length !== 10 || isSending}
-                  activeOpacity={0.85}
-                >
-                  <Text style={styles.primaryBtnText}>
-                    {isSending ? 'Sending...' : 'Send OTP'}
-                  </Text>
-                  <Ionicons name="arrow-forward" size={20} color="#fff" />
-                </TouchableOpacity>
-                {error ? (
-                  <Text style={styles.errorText}>{error}</Text>
-                ) : null}
-              </>
-            ) : (
-              <>
-                <Text style={[styles.cardTitle, { color: theme.colors.onSurface }]}>
-                  Enter OTP
-                </Text>
-                <Text style={[styles.cardSub, { color: theme.colors.onSurfaceVariant }]}>
-                  Sent to{' '}
-                  <Text style={{ color: '#0D9488', fontWeight: '700' }}>
-                    +91 {phone}
-                  </Text>
-                </Text>
-
-                {/* OTP Boxes */}
-                <View style={styles.otpRow}>
-                  {otp.map((digit, idx) => (
-                    <RNTextInput
-                      key={idx}
-                      ref={(r) => { otpRefs.current[idx] = r; }}
-                      style={[
-                        styles.otpBox,
-                        digit ? styles.otpBoxFilled : {},
-                        { color: theme.colors.onSurface, borderColor: digit ? '#0D9488' : '#E2E8F0' },
-                      ]}
-                      value={digit}
-                      onChangeText={(v) => handleOtpChange(v, idx)}
-                      keyboardType="number-pad"
-                      maxLength={1}
-                      textAlign="center"
-                      selectTextOnFocus
-                    />
-                  ))}
+            <TouchableOpacity
+              style={[styles.googleBtn, isLoading && styles.btnDisabled]}
+              onPress={handleGoogleSignIn}
+              disabled={isLoading}
+              activeOpacity={0.85}
+            >
+              {isLoading ? (
+                <ActivityIndicator color="#3B82F6" size="small" />
+              ) : (
+                <View style={styles.googleIcon}>
+                  {/* Google 'G' logo using coloured quadrants */}
+                  <Text style={styles.googleG}>G</Text>
                 </View>
+              )}
+              <Text style={styles.googleBtnText}>
+                {isLoading ? 'Signing in...' : 'Sign in with Google'}
+              </Text>
+            </TouchableOpacity>
 
-                <TouchableOpacity
-                  style={[
-                    styles.primaryBtn,
-                    otpValue.length !== 6 && styles.btnDisabled,
-                  ]}
-                  onPress={handleVerifyOtp}
-                  disabled={otpValue.length !== 6 || isVerifying}
-                  activeOpacity={0.85}
-                >
-                  <Text style={styles.primaryBtnText}>
-                    {isVerifying ? 'Verifying...' : 'Verify & Login'}
-                  </Text>
-                  <Ionicons name="checkmark" size={20} color="#fff" />
-                </TouchableOpacity>
-                {error ? (
-                  <Text style={styles.errorText}>{error}</Text>
-                ) : null}
-
-                <TouchableOpacity
-                  onPress={() => { setShowOtp(false); setOtp(['', '', '', '', '', '']); }}
-                  style={styles.backLink}
-                >
-                  <Ionicons name="chevron-back" size={16} color="#0D9488" />
-                  <Text style={styles.backLinkText}>Change Number</Text>
-                </TouchableOpacity>
-              </>
-            )}
+            {error ? <Text style={styles.errorText}>{error}</Text> : null}
           </View>
         </View>
 
@@ -206,7 +88,7 @@ export default function LoginScreen() {
             Terms of Service
           </Text>
         </Text>
-      </KeyboardAwareScrollView>
+      </View>
     </View>
   );
 }
@@ -268,12 +150,10 @@ const styles = StyleSheet.create({
     color: 'rgba(255,255,255,0.8)',
     letterSpacing: 0.3,
   },
-  scrollContent: {
-    flexGrow: 1,
+  cardWrap: {
+    flex: 1,
     paddingHorizontal: Spacing.xl,
     paddingTop: Spacing.xl,
-    paddingBottom: Spacing.xxxl,
-    marginTop: Spacing.xl,
   },
   card: {
     borderRadius: BorderRadius.xxl,
@@ -304,59 +184,40 @@ const styles = StyleSheet.create({
   },
   cardSub: {
     fontSize: FontSize.md,
-    marginBottom: Spacing.xl,
-  },
-  input: {
-    marginBottom: Spacing.lg,
-    backgroundColor: '#fff',
-  },
-  otpRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
     marginBottom: Spacing.xxl,
-    gap: Spacing.sm,
   },
-  otpBox: {
-    flex: 1,
-    height: 54,
-    borderWidth: 2,
-    borderRadius: BorderRadius.lg,
-    fontSize: FontSize.xxl,
-    fontWeight: '700',
-    backgroundColor: '#F8FAFC',
-  },
-  otpBoxFilled: {
-    backgroundColor: '#F0FDFA',
-  },
-  primaryBtn: {
+  googleBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: Spacing.sm,
-    backgroundColor: '#0D9488',
+    gap: Spacing.md,
+    backgroundColor: '#fff',
     borderRadius: BorderRadius.lg,
-    paddingVertical: 15,
+    paddingVertical: 14,
+    borderWidth: 1.5,
+    borderColor: '#E2E8F0',
     ...Shadow.sm,
   },
   btnDisabled: {
-    backgroundColor: '#94A3B8',
+    opacity: 0.6,
   },
-  primaryBtnText: {
-    fontSize: FontSize.lg,
-    fontWeight: '700',
-    color: '#fff',
-  },
-  backLink: {
-    flexDirection: 'row',
+  googleIcon: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: Spacing.lg,
-    gap: 2,
   },
-  backLinkText: {
-    fontSize: FontSize.md,
-    color: '#0D9488',
+  googleG: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#4285F4',
+  },
+  googleBtnText: {
+    fontSize: FontSize.lg,
     fontWeight: '600',
+    color: '#1E293B',
   },
   footer: {
     textAlign: 'center',

@@ -14,9 +14,8 @@ import { Payment } from '../../types';
 
 const PAYMENT_METHODS = ['cash', 'bank_transfer', 'upi', 'cheque', 'other'] as const;
 
-const interstitial = InterstitialAd.createForAdRequest('ca-app-pub-3940256099942544/1033173712');
-const rewarded = RewardedAd.createForAdRequest('ca-app-pub-3940256099942544/5224354917');
-// Real rewarded ID (use after AdMob approval): ca-app-pub-7848427116394025/1522510394
+const interstitial = InterstitialAd.createForAdRequest('ca-app-pub-7848427116394025/1715449067');
+const rewarded = RewardedAd.createForAdRequest('ca-app-pub-7848427116394025/1522510394');
 
 function totalAmount(lineItems: any[]): number {
   return lineItems.reduce((sum, item) => {

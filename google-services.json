@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "788769136251",
+    "firebase_url": "https://softwarebillingapp-default-rtdb.asia-southeast1.firebasedatabase.app",
     "project_id": "softwarebillingapp",
     "storage_bucket": "softwarebillingapp.firebasestorage.app"
   },
@@ -12,7 +13,20 @@
           "package_name": "com.smartbillingapp"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "788769136251-cqt4ikfhajgm4sic9i614qlvcuamutcd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.smartbillingapp",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "788769136251-nt6jtm7d64j6d12oqem5a2b0n4simth8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDWSTWSqwSR_mGJW85DV0M8f4oklY5Vi5w"
@@ -20,7 +34,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "788769136251-nt6jtm7d64j6d12oqem5a2b0n4simth8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

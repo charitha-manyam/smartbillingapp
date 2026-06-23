@@ -1,8 +1,10 @@
 import { Platform, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { StackActions } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from 'react-native-paper';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import DashboardScreen from '../screens/dashboard/DashboardScreen';
 import NotificationsScreen from '../screens/notifications/NotificationsScreen';
@@ -118,6 +120,7 @@ type TabIcon = { focused: boolean; color: string; size: number };
 
 export function TabNavigator() {
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
 
   return (
     <Tab.Navigator
@@ -129,9 +132,9 @@ export function TabNavigator() {
           backgroundColor: theme.colors.surface,
           borderTopColor: theme.dark ? '#334155' : '#E2E8F0',
           borderTopWidth: StyleSheet.hairlineWidth,
-          paddingBottom: Platform.OS === 'ios' ? 20 : 8,
+          paddingBottom: Platform.OS === 'ios' ? 20 : insets.bottom + 8,
           paddingTop: 8,
-          height: Platform.OS === 'ios' ? 85 : 65,
+          height: Platform.OS === 'ios' ? 85 : 65 + insets.bottom,
         },
         tabBarLabelStyle: {
           fontSize: 11,
@@ -152,6 +155,18 @@ export function TabNavigator() {
       <Tab.Screen
         name="SalesTab"
         component={SalesStackScreen}
+        listeners={({ navigation }) => ({
+          tabPress: () => {
+            const state = navigation.getState();
+            const route = state?.routes?.find((r: any) => r.name === 'SalesTab');
+            if (route?.state && (route.state.index ?? 0) > 0) {
+              navigation.dispatch({
+                ...StackActions.popToTop(),
+                target: route.state.key,
+              });
+            }
+          },
+        })}
         options={{
           tabBarLabel: 'Sales',
           tabBarIcon: ({ focused, color, size }: TabIcon) => (
@@ -162,6 +177,18 @@ export function TabNavigator() {
       <Tab.Screen
         name="CustomersTab"
         component={CustomerStackScreen}
+        listeners={({ navigation }) => ({
+          tabPress: () => {
+            const state = navigation.getState();
+            const route = state?.routes?.find((r: any) => r.name === 'CustomersTab');
+            if (route?.state && (route.state.index ?? 0) > 0) {
+              navigation.dispatch({
+                ...StackActions.popToTop(),
+                target: route.state.key,
+              });
+            }
+          },
+        })}
         options={{
           tabBarLabel: 'Customers',
           tabBarIcon: ({ focused, color, size }: TabIcon) => (
@@ -172,6 +199,18 @@ export function TabNavigator() {
       <Tab.Screen
         name="MoreTab"
         component={MoreStackScreen}
+        listeners={({ navigation }) => ({
+          tabPress: () => {
+            const state = navigation.getState();
+            const moreRoute = state?.routes?.find((r: any) => r.name === 'MoreTab');
+            if (moreRoute?.state && (moreRoute.state.index ?? 0) > 0) {
+              navigation.dispatch({
+                ...StackActions.popToTop(),
+                target: moreRoute.state.key,
+              });
+            }
+          },
+        })}
         options={{
           tabBarLabel: 'More',
           tabBarIcon: ({ focused, color, size }: TabIcon) => (
