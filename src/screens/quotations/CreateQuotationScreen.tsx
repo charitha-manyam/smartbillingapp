@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { View, StyleSheet, Modal, TouchableOpacity, FlatList, ScrollView } from 'react-native';
+import { View, StyleSheet, Modal, TouchableOpacity, FlatList, ScrollView, Alert } from 'react-native';
 import { KeyboardAwareScrollView } from '../../components/KeyboardAwareScrollView';
 import { Text, TextInput, Button, useTheme, Menu, Searchbar } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
@@ -128,13 +128,17 @@ export default function CreateQuotationScreen({ navigation }: any) {
   };
 
   const handleSave = () => {
+    if (!customerId) {
+      Alert.alert('Customer Required', 'Please select a customer before saving the quotation.');
+      return;
+    }
     const quotation: Quotation = {
       id: Date.now().toString(),
       quotationNumber: upcomingNumber,
       date: date.toISOString(),
       validUntil: validUntilDate ? validUntilDate.toISOString() : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-      customerId: customerId || 'walk-in',
-      customerName: selectedCustomer?.customerName || 'Walk-in Customer',
+      customerId,
+      customerName: selectedCustomer?.customerName || '',
       customerGst: selectedCustomer?.gstNumber || '',
       customerAddress: selectedCustomer?.address || '',
       lineItems: lineItems.filter((li) => li.itemName.trim()),
@@ -162,11 +166,15 @@ export default function CreateQuotationScreen({ navigation }: any) {
           onDismiss={() => setCustomerMenu(false)}
           anchor={
             <Button mode="outlined" onPress={() => setCustomerMenu(true)} style={styles.customerBtn}>
-              {selectedCustomer ? selectedCustomer.customerName : 'Select Customer (Optional)'}
+              {selectedCustomer ? selectedCustomer.customerName : 'Select Customer *'}
             </Button>
           }
         >
-          <Menu.Item onPress={() => { setCustomerId(''); setCustomerMenu(false); }} title="Walk-in Customer" />
+          <Menu.Item
+            onPress={() => { setCustomerMenu(false); navigation.navigate('AddCustomer'); }}
+            title="+ Add New Customer"
+            titleStyle={{ color: '#0D9488', fontWeight: '700' }}
+          />
           {customers.map((c) => (
             <Menu.Item key={c.id} onPress={() => { setCustomerId(c.id); setCustomerMenu(false); }} title={c.customerName} />
           ))}

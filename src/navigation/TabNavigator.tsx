@@ -76,6 +76,8 @@ function SalesStackScreen() {
       <SalesStack.Screen name="QuotationDetail" component={QuotationDetailScreen} options={{ title: 'Quotation' }} />
       <SalesStack.Screen name="CreateInvoice" component={CreateInvoiceScreen} options={{ title: 'New Invoice' }} />
       <SalesStack.Screen name="InvoiceDetail" component={InvoiceDetailScreen} options={{ title: 'Invoice' }} />
+      <SalesStack.Screen name="AddCustomer" component={AddCustomerScreen} options={{ title: 'Add Customer' }} />
+      <SalesStack.Screen name="CustomerDetail" component={CustomerDetailScreen} options={{ title: 'Customer Details' }} />
     </SalesStack.Navigator>
   );
 }
